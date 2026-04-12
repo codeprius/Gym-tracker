@@ -64,14 +64,14 @@ export default function DashboardPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(74,222,128,0.3)', borderTopColor: '#4ade80' }} />
+      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--c-primary-glow)', borderTopColor: 'var(--c-primary)' }} />
     </div>
   )
 
   const statItems = [
     { label: 'Streak', value: stats.streak, unit: 'days', icon: FireIcon, color: '#f97316', glow: 'rgba(249,115,22,0.3)' },
-    { label: 'This Month', value: stats.thisMonth, unit: 'workouts', icon: CalendarIcon, color: '#4ade80', glow: 'rgba(74,222,128,0.3)' },
-    { label: 'Total', value: stats.totalWorkouts, unit: 'logged', icon: TrophyIcon, color: '#fbbf24', glow: 'rgba(251,191,36,0.3)' },
+    { label: 'This Month', value: stats.thisMonth, unit: 'workouts', icon: CalendarIcon, color: 'var(--c-primary)', glow: 'var(--c-primary-glow)' },
+    { label: 'Total', value: stats.totalWorkouts, unit: 'logged', icon: TrophyIcon, color: 'var(--c-accent)', glow: 'var(--c-accent-glow)' },
   ]
 
   return (
@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
       {/* Calendar */}
       <div className="card p-5">
-        <h2 className="font-display text-xl tracking-wider mb-4" style={{ color: '#4ade80' }}>
+        <h2 className="font-display text-xl tracking-wider mb-4" style={{ color: 'var(--c-primary)' }}>
           {format(today, 'MMMM yyyy').toUpperCase()}
         </h2>
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold mb-2" style={{ color: '#4b5563' }}>
@@ -122,10 +122,10 @@ export default function DashboardPage() {
                   hasWorkout
                     ? { background: 'linear-gradient(135deg, #16a34a, #15803d)', color: 'white', boxShadow: '0 0 12px rgba(22,163,74,0.4)' }
                     : isToday
-                    ? { border: '2px solid #4ade80', color: '#4ade80' }
+                    ? { border: '2px solid #4ade80', color: 'var(--c-primary)' }
                     : { color: '#4b5563' }
                 }
-                onMouseEnter={e => { if (!hasWorkout && !isToday) e.currentTarget.style.background = 'rgba(34,197,94,0.1)' }}
+                onMouseEnter={e => { if (!hasWorkout && !isToday) e.currentTarget.style.background = 'var(--c-border)' }}
                 onMouseLeave={e => { if (!hasWorkout && !isToday) e.currentTarget.style.background = 'transparent' }}
               >
                 {format(day, 'd')}
@@ -138,7 +138,7 @@ export default function DashboardPage() {
       <div className="grid md:grid-cols-2 gap-4">
         {/* PRs */}
         <div className="card p-5">
-          <h2 className="font-display text-xl tracking-wider mb-4 flex items-center gap-2" style={{ color: '#fbbf24' }}>
+          <h2 className="font-display text-xl tracking-wider mb-4 flex items-center gap-2" style={{ color: 'var(--c-accent)' }}>
             <TrophyIcon className="w-5 h-5" /> PERSONAL RECORDS
           </h2>
           {prs.length === 0 ? (
@@ -152,7 +152,7 @@ export default function DashboardPage() {
                     <div className="text-xs" style={{ color: '#4b5563' }}>{format(parseISO(date), 'MMM d, yyyy')}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-display text-xl" style={{ color: '#fbbf24', textShadow: '0 0 12px rgba(251,191,36,0.3)' }}>{weight}kg</div>
+                    <div className="font-display text-xl" style={{ color: 'var(--c-accent)', textShadow: '0 0 12px rgba(251,191,36,0.3)' }}>{weight}kg</div>
                     <div className="text-xs" style={{ color: '#4b5563' }}>{reps} reps</div>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export default function DashboardPage() {
 
         {/* Recent workouts */}
         <div className="card p-5">
-          <h2 className="font-display text-xl tracking-wider mb-4" style={{ color: '#4ade80' }}>RECENT WORKOUTS</h2>
+          <h2 className="font-display text-xl tracking-wider mb-4" style={{ color: 'var(--c-primary)' }}>RECENT WORKOUTS</h2>
           {workouts.length === 0 ? (
             <p className="text-sm" style={{ color: '#4b5563' }}>No workouts yet. Start logging!</p>
           ) : (
@@ -179,7 +179,7 @@ export default function DashboardPage() {
                     <div className="text-sm font-semibold" style={{ color: '#e2e8f0' }}>{format(parseISO(w.date), 'EEE, MMM d')}</div>
                     <div className="text-xs" style={{ color: '#4b5563' }}>{w.workout_exercises?.length || 0} exercises</div>
                   </div>
-                  <span className="text-xs font-medium" style={{ color: '#4ade80' }}>View →</span>
+                  <span className="text-xs font-medium" style={{ color: 'var(--c-primary)' }}>View →</span>
                 </button>
               ))}
             </div>

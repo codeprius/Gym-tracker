@@ -50,7 +50,7 @@ export default function ProgressPage() {
     if (active && payload?.length) return (
       <div className="rounded-xl px-3 py-2 text-sm" style={{ background: 'rgba(8,20,10,0.95)', border: '1px solid rgba(34,197,94,0.3)', boxShadow: '0 0 20px rgba(22,163,74,0.2)' }}>
         <p className="text-xs mb-1" style={{ color: '#4b5563' }}>{label}</p>
-        <p className="font-bold" style={{ color: tab === 'weight' ? '#4ade80' : '#fbbf24' }}>
+        <p className="font-bold" style={{ color: tab === 'weight' ? 'var(--c-primary)' : 'var(--c-accent)' }}>
           {payload[0].value}{tab === 'weight' ? 'kg' : 'kg vol'}
         </p>
       </div>
@@ -60,7 +60,7 @@ export default function ProgressPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(74,222,128,0.3)', borderTopColor: '#4ade80' }} />
+      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--c-primary-glow)', borderTopColor: 'var(--c-primary)' }} />
     </div>
   )
 
@@ -92,7 +92,7 @@ export default function ProgressPage() {
               <button key={t.id} onClick={() => setTab(t.id)}
                 className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all"
                 style={tab === t.id
-                  ? { background: tab === 'weight' ? 'linear-gradient(135deg,#16a34a,#15803d)' : 'linear-gradient(135deg,#d97706,#b45309)', color: 'white', boxShadow: `0 0 16px ${tab === 'weight' ? 'rgba(22,163,74,0.3)' : 'rgba(217,119,6,0.3)'}` }
+                  ? { background: tab === 'weight' ? 'linear-gradient(135deg,#16a34a,#15803d)' : 'linear-gradient(135deg,#d97706,#b45309)', color: 'white', boxShadow: `0 0 16px ${tab === 'weight' ? 'var(--c-nav-active-bg)' : 'rgba(217,119,6,0.3)'}` }
                   : { color: '#6b7280' }
                 }
               >
@@ -117,9 +117,9 @@ export default function ProgressPage() {
                     <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Line type="monotone" dataKey="weight" stroke="#4ade80" strokeWidth={2.5}
-                      dot={{ fill: '#4ade80', strokeWidth: 0, r: 4 }}
-                      activeDot={{ r: 6, fill: '#4ade80', boxShadow: '0 0 12px rgba(74,222,128,0.6)' }}
+                    <Line type="monotone" dataKey="weight" stroke="var(--c-primary)" strokeWidth={2.5}
+                      dot={{ fill: 'var(--c-primary)', strokeWidth: 0, r: 4 }}
+                      activeDot={{ r: 6, fill: 'var(--c-primary)', boxShadow: '0 0 12px rgba(74,222,128,0.6)' }}
                     />
                   </LineChart>
                 ) : (

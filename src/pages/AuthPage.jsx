@@ -34,7 +34,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050a05 0%, #0a140a 50%, #060b08 100%)' }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'var(--c-gradient)' }}>
       {/* Background orbs */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(22,163,74,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }} />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
@@ -43,8 +43,8 @@ export default function AuthPage() {
         {/* Logo */}
         <div className="text-center mb-10">
           <div className="flex items-baseline justify-center gap-1 mb-2">
-            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: '#4ade80', textShadow: '0 0 40px rgba(74,222,128,0.5)' }}>GYM</span>
-            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: '#fbbf24', textShadow: '0 0 40px rgba(251,191,36,0.5)' }}>-X</span>
+            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: 'var(--c-primary)', textShadow: '0 0 40px rgba(74,222,128,0.5)' }}>GYM</span>
+            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: 'var(--c-accent)', textShadow: '0 0 40px rgba(251,191,36,0.5)' }}>-X</span>
           </div>
           <p style={{ color: '#4b5563', letterSpacing: '0.3em', fontSize: '0.7rem' }}>TRACK · PROGRESS · DOMINATE</p>
         </div>
@@ -84,7 +84,7 @@ export default function AuthPage() {
               </div>
             )}
             {success && (
-              <div className="text-sm rounded-xl px-4 py-3" style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#4ade80' }}>
+              <div className="text-sm rounded-xl px-4 py-3" style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: 'var(--c-primary)' }}>
                 {success}
               </div>
             )}

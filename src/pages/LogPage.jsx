@@ -114,7 +114,7 @@ export default function LogPage() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(74,222,128,0.3)', borderTopColor: '#4ade80' }} />
+      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'var(--c-primary-glow)', borderTopColor: 'var(--c-primary)' }} />
     </div>
   )
 
@@ -172,7 +172,7 @@ export default function LogPage() {
                     <div className="font-semibold" style={{ color: '#e2e8f0' }}>{we.exercise_name}</div>
                     <div className="text-xs mt-0.5" style={{ color: '#4b5563' }}>
                       {we.sets?.length || 0} sets
-                      {totalVol > 0 && <span style={{ color: '#fbbf24' }}> · {totalVol.toLocaleString()}kg vol</span>}
+                      {totalVol > 0 && <span style={{ color: 'var(--c-accent)' }}> · {totalVol.toLocaleString()}kg vol</span>}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -186,7 +186,7 @@ export default function LogPage() {
                       <TrashIcon className="w-4 h-4" />
                     </button>
                     {isExpanded
-                      ? <ChevronUpIcon className="w-4 h-4" style={{ color: '#4ade80' }} />
+                      ? <ChevronUpIcon className="w-4 h-4" style={{ color: 'var(--c-primary)' }} />
                       : <ChevronDownIcon className="w-4 h-4" style={{ color: '#4b5563' }} />
                     }
                   </div>
@@ -204,7 +204,7 @@ export default function LogPage() {
                       <div className="space-y-2">
                         {we.sets?.map(set => (
                           <div key={set.id} className="grid grid-cols-12 gap-2 items-center">
-                            <div className="col-span-1 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center" style={{ background: 'rgba(22,163,74,0.15)', color: '#4ade80' }}>
+                            <div className="col-span-1 w-6 h-6 rounded-full text-xs font-bold flex items-center justify-center" style={{ background: 'rgba(22,163,74,0.15)', color: 'var(--c-primary)' }}>
                               {set.set_number}
                             </div>
                             <input type="number" step="0.5" min="0" defaultValue={set.weight_kg ?? ''} onBlur={e => updateSet(we.id, set.id, 'weight_kg', e.target.value)} placeholder="0" className="col-span-4 input py-1.5 text-center text-sm" />
@@ -218,9 +218,9 @@ export default function LogPage() {
                           </div>
                         ))}
                       </div>
-                      <button onClick={() => addSet(we.id)} className="mt-3 flex items-center gap-1.5 text-sm font-medium transition-colors" style={{ color: '#4ade80' }}
+                      <button onClick={() => addSet(we.id)} className="mt-3 flex items-center gap-1.5 text-sm font-medium transition-colors" style={{ color: 'var(--c-primary)' }}
                         onMouseEnter={e => e.currentTarget.style.color = '#86efac'}
-                        onMouseLeave={e => e.currentTarget.style.color = '#4ade80'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--c-primary)'}
                       >
                         <PlusIcon className="w-4 h-4" /> Add Set
                       </button>
@@ -265,12 +265,12 @@ export default function LogPage() {
                     type="button"
                     onClick={() => setPickerCategory(null)}
                     className="flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-                    style={{ background: 'rgba(34,197,94,0.1)', color: '#4ade80' }}
+                    style={{ background: 'var(--c-border)', color: 'var(--c-primary)' }}
                   >
                     <ArrowLeftIcon className="w-4 h-4" />
                   </button>
                 )}
-                <h3 className="font-display text-2xl tracking-widest" style={{ color: pickerCategory ? '#fbbf24' : '#4ade80', textShadow: pickerCategory ? '0 0 20px rgba(251,191,36,0.3)' : '0 0 20px rgba(74,222,128,0.3)' }}>
+                <h3 className="font-display text-2xl tracking-widest" style={{ color: pickerCategory ? 'var(--c-accent)' : 'var(--c-primary)', textShadow: pickerCategory ? '0 0 20px rgba(251,191,36,0.3)' : '0 0 20px rgba(74,222,128,0.3)' }}>
                   {pickerCategory ? pickerCategory.name.toUpperCase() : 'PICK CATEGORY'}
                 </h3>
               </div>
@@ -343,7 +343,7 @@ export default function LogPage() {
                         e.currentTarget.style.background = 'rgba(251,191,36,0.12)'
                         e.currentTarget.style.border = '1px solid rgba(251,191,36,0.4)'
                         e.currentTarget.style.boxShadow = '0 0 20px rgba(251,191,36,0.1)'
-                        e.currentTarget.style.color = '#fbbf24'
+                        e.currentTarget.style.color = 'var(--c-accent)'
                       }}
                       onMouseLeave={e => {
                         e.currentTarget.style.background = 'rgba(251,191,36,0.04)'
