@@ -62,34 +62,57 @@ export default function LogPage() {
 
   async function ensureWorkout() {
     if (workout) return workout
+    // First check if a workout already exists (avoid upsert FK issues)
+    const { data: existing } = await supabase
+      .from('workouts')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('date', date)
+      .maybeSingle()
+    if (existing) { setWorkout(existing); return existing }
+
     const { data, error } = await supabase
       .from('workouts')
-      .upsert({ user_id: user.id, date, notes: workoutNotes }, { onConflict: 'user_id,date' })
+      .insert({ user_id: user.id, date, notes: '' })
       .select()
       .single()
-    if (!error) { setWorkout(data); return data }
-    return null
+    if (error) { console.error('ensureWorkout error:', error); return null }
+    setWorkout(data)
+    return data
   }
 
   async function addExercise(exerciseName, categoryId) {
     setSaving(true)
     const w = await ensureWorkout()
     if (!w) { setSaving(false); return }
-    const { data: we } = await supabase
+
+    // Only pass category_id if it's a real UUID (user-created categories)
+    // Default categories use string ids like 'chest', 'back' which are not valid UUIDs
+    const isUUID = categoryId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId)
+
+    const { data: we, error } = await supabase
       .from('workout_exercises')
       .insert({
         workout_id: w.id,
         exercise_name: exerciseName,
-        category_id: categoryId || null,
+        category_id: isUUID ? categoryId : null,
         order_index: exercises.length,
       })
       .select()
       .single()
+
+    if (error) {
+      console.error('Failed to add exercise:', error)
+      setSaving(false)
+      return
+    }
+
     if (we) {
       setExercises(prev => [...prev, { ...we, sets: [] }])
       setExpandedExercise(we.id)
     }
     setShowExercisePicker(false)
+    setPickerCategory(null)
     setSaving(false)
   }
 
