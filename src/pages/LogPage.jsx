@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
@@ -6,16 +6,16 @@ import { DEFAULT_CATEGORIES } from '../data/exercises'
 import { format, parseISO } from 'date-fns'
 import {
   PlusIcon, TrashIcon, ChevronDownIcon,
-  ChevronUpIcon, CheckIcon, XMarkIcon
+  ChevronUpIcon, XMarkIcon
 } from '@heroicons/react/24/outline'
 
 export default function LogPage() {
   const { date: dateParam } = useParams()
-  const navigate = useNavigate()
   const { user } = useAuth()
   const date = dateParam || format(new Date(), 'yyyy-MM-dd')
 
   const [workout, setWorkout] = useState(null)
+  const workoutRef = useRef(null) // ref so ensureWorkout always sees latest value
   const [exercises, setExercises] = useState([])
   const [userCategories, setUserCategories] = useState([])
   const [loading, setLoading] = useState(true)
@@ -26,6 +26,9 @@ export default function LogPage() {
   const [workoutNotes, setWorkoutNotes] = useState('')
 
   useEffect(() => { fetchWorkout() }, [date])
+
+  // Keep ref in sync with state
+  useEffect(() => { workoutRef.current = workout }, [workout])
 
   async function fetchWorkout() {
     setLoading(true)
@@ -42,6 +45,7 @@ export default function LogPage() {
 
     if (w) {
       setWorkout(w)
+      workoutRef.current = w
       setWorkoutNotes(w.notes || '')
       const { data: wes } = await supabase
         .from('workout_exercises')
@@ -54,6 +58,7 @@ export default function LogPage() {
       })))
     } else {
       setWorkout(null)
+      workoutRef.current = null
       setExercises([])
       setWorkoutNotes('')
     }
@@ -61,58 +66,74 @@ export default function LogPage() {
   }
 
   async function ensureWorkout() {
-    if (workout) return workout
-    // First check if a workout already exists (avoid upsert FK issues)
+    // Use ref to always get the latest value, not stale closure
+    if (workoutRef.current) return workoutRef.current
+
+    // Check if one already exists
     const { data: existing } = await supabase
       .from('workouts')
       .select('*')
       .eq('user_id', user.id)
       .eq('date', date)
       .maybeSingle()
-    if (existing) { setWorkout(existing); return existing }
+
+    if (existing) {
+      setWorkout(existing)
+      workoutRef.current = existing
+      return existing
+    }
 
     const { data, error } = await supabase
       .from('workouts')
       .insert({ user_id: user.id, date, notes: '' })
       .select()
       .single()
-    if (error) { console.error('ensureWorkout error:', error); return null }
+
+    if (error) {
+      console.error('ensureWorkout insert error:', error)
+      return null
+    }
+
     setWorkout(data)
+    workoutRef.current = data
     return data
   }
 
-  async function addExercise(exerciseName, categoryId) {
+  async function handleAddExercise(exerciseName) {
+    if (saving) return
     setSaving(true)
-    const w = await ensureWorkout()
-    if (!w) { setSaving(false); return }
 
-    // Only pass category_id if it's a real UUID (user-created categories)
-    // Default categories use string ids like 'chest', 'back' which are not valid UUIDs
-    const isUUID = categoryId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(categoryId)
+    const w = await ensureWorkout()
+    if (!w) {
+      alert('Could not create workout. Check console for errors.')
+      setSaving(false)
+      return
+    }
+
+    // Close picker immediately for responsive feel
+    setShowExercisePicker(false)
+    setPickerCategory(null)
 
     const { data: we, error } = await supabase
       .from('workout_exercises')
       .insert({
         workout_id: w.id,
         exercise_name: exerciseName,
-        category_id: isUUID ? categoryId : null,
+        category_id: null, // always null for default categories; avoids FK issues
         order_index: exercises.length,
       })
       .select()
       .single()
 
     if (error) {
-      console.error('Failed to add exercise:', error)
+      console.error('Failed to insert workout_exercise:', error)
+      alert('Failed to add exercise: ' + error.message)
       setSaving(false)
       return
     }
 
-    if (we) {
-      setExercises(prev => [...prev, { ...we, sets: [] }])
-      setExpandedExercise(we.id)
-    }
-    setShowExercisePicker(false)
-    setPickerCategory(null)
+    setExercises(prev => [...prev, { ...we, sets: [] }])
+    setExpandedExercise(we.id)
     setSaving(false)
   }
 
@@ -120,7 +141,7 @@ export default function LogPage() {
     const we = exercises.find(e => e.id === weId)
     const setNumber = (we.sets?.length || 0) + 1
     const lastSet = we.sets?.[we.sets.length - 1]
-    const { data: set } = await supabase
+    const { data: set, error } = await supabase
       .from('sets')
       .insert({
         workout_exercise_id: weId,
@@ -130,6 +151,7 @@ export default function LogPage() {
       })
       .select()
       .single()
+    if (error) { console.error('addSet error:', error); return }
     if (set) {
       setExercises(prev => prev.map(e =>
         e.id === weId ? { ...e, sets: [...(e.sets || []), set] } : e
@@ -165,8 +187,9 @@ export default function LogPage() {
   }
 
   async function saveWorkoutNotes() {
-    if (!workout) return
-    await supabase.from('workouts').update({ notes: workoutNotes }).eq('id', workout.id)
+    const w = workoutRef.current
+    if (!w) return
+    await supabase.from('workouts').update({ notes: workoutNotes }).eq('id', w.id)
   }
 
   if (loading) return (
@@ -187,12 +210,11 @@ export default function LogPage() {
           <p className="text-zinc-500 dark:text-zinc-400 text-sm">{format(displayDate, 'MMMM d, yyyy')}</p>
         </div>
         <button
-          onClick={() => setShowExercisePicker(true)}
+          onClick={() => { setShowExercisePicker(true) }}
           className="btn-primary flex items-center gap-2"
-          disabled={saving}
         >
           <PlusIcon className="w-4 h-4" />
-          Add Exercise
+          {saving ? 'Adding...' : 'Add Exercise'}
         </button>
       </div>
 
@@ -227,13 +249,11 @@ export default function LogPage() {
                   className="flex items-center justify-between p-4 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all"
                   onClick={() => setExpandedExercise(isExpanded ? null : we.id)}
                 >
-                  <div className="flex items-center gap-3">
-                    <div>
-                      <div className="font-semibold text-zinc-900 dark:text-zinc-100">{we.exercise_name}</div>
-                      <div className="text-xs text-zinc-400">
-                        {we.sets?.length || 0} sets
-                        {totalVol > 0 && ` · ${totalVol.toLocaleString()}kg total vol`}
-                      </div>
+                  <div>
+                    <div className="font-semibold text-zinc-900 dark:text-zinc-100">{we.exercise_name}</div>
+                    <div className="text-xs text-zinc-400">
+                      {we.sets?.length || 0} sets
+                      {totalVol > 0 && ` · ${totalVol.toLocaleString()}kg total vol`}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -249,7 +269,6 @@ export default function LogPage() {
 
                 {isExpanded && (
                   <div className="border-t border-zinc-100 dark:border-zinc-800 p-4 space-y-4">
-                    {/* Sets table */}
                     <div>
                       <div className="grid grid-cols-12 gap-2 text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2 px-1">
                         <div className="col-span-1">Set</div>
@@ -258,7 +277,7 @@ export default function LogPage() {
                         <div className="col-span-3"></div>
                       </div>
                       <div className="space-y-2">
-                        {we.sets?.map((set, i) => (
+                        {we.sets?.map((set) => (
                           <div key={set.id} className="grid grid-cols-12 gap-2 items-center">
                             <div className="col-span-1 w-6 h-6 rounded-full bg-brand-500/10 text-brand-600 dark:text-brand-400 text-xs font-bold flex items-center justify-center">
                               {set.set_number}
@@ -297,7 +316,6 @@ export default function LogPage() {
                       </button>
                     </div>
 
-                    {/* Exercise notes */}
                     <div>
                       <label className="label">Notes</label>
                       <input
@@ -318,46 +336,66 @@ export default function LogPage() {
 
       {/* Exercise Picker Modal */}
       {showExercisePicker && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center z-50 p-4">
-          <div className="card w-full max-w-md max-h-[80vh] flex flex-col animate-slide-up">
-            <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-800">
-              <h3 className="font-display text-xl tracking-wider text-zinc-900 dark:text-zinc-100">
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end md:items-center justify-center p-4"
+          onClick={e => {
+            // Close if clicking the backdrop itself
+            if (e.target === e.currentTarget) {
+              setShowExercisePicker(false)
+              setPickerCategory(null)
+            }
+          }}
+        >
+          <div
+            className="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-md flex flex-col animate-slide-up"
+            style={{ maxHeight: '75vh' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-zinc-800 shrink-0">
+              <h3 className="font-display text-xl tracking-wider text-zinc-100">
                 {pickerCategory ? pickerCategory.name.toUpperCase() : 'PICK CATEGORY'}
               </h3>
               <button
                 onClick={() => { setShowExercisePicker(false); setPickerCategory(null) }}
-                className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                className="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-800"
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
 
+            {/* Body */}
             <div className="overflow-y-auto flex-1 p-4">
               {!pickerCategory ? (
                 <div className="grid grid-cols-2 gap-2">
                   {userCategories.map(cat => (
                     <button
                       key={cat.id}
+                      type="button"
                       onClick={() => setPickerCategory(cat)}
-                      className="p-3 rounded-xl border-2 border-zinc-200 dark:border-zinc-700 hover:border-brand-500 transition-all text-left"
-                      style={{ borderColor: cat.color + '44' }}
+                      className="p-3 rounded-xl border border-zinc-700 hover:border-brand-500 transition-all text-left bg-zinc-800 hover:bg-zinc-700"
                     >
                       <div className="w-3 h-3 rounded-full mb-2" style={{ backgroundColor: cat.color }} />
-                      <div className="font-semibold text-zinc-800 dark:text-zinc-200 text-sm">{cat.name}</div>
+                      <div className="font-semibold text-zinc-200 text-sm">{cat.name}</div>
                       <div className="text-xs text-zinc-400">{cat.exercises?.length || 0} exercises</div>
                     </button>
                   ))}
                 </div>
               ) : (
                 <div className="space-y-1">
-                  <button onClick={() => setPickerCategory(null)} className="text-xs text-zinc-400 hover:text-brand-500 mb-2 flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => setPickerCategory(null)}
+                    className="text-xs text-zinc-400 hover:text-brand-500 mb-3 flex items-center gap-1"
+                  >
                     ← Back
                   </button>
                   {pickerCategory.exercises?.map(ex => (
                     <button
                       key={ex}
-                      onClick={() => addExercise(ex, pickerCategory.id)}
-                      className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-brand-500 hover:text-white text-zinc-700 dark:text-zinc-300 text-sm font-medium transition-all"
+                      type="button"
+                      onClick={() => handleAddExercise(ex)}
+                      className="w-full text-left px-3 py-3 rounded-lg bg-zinc-800 hover:bg-brand-500 hover:text-white text-zinc-200 text-sm font-medium transition-all"
                     >
                       {ex}
                     </button>
