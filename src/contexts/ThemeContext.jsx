@@ -5,8 +5,9 @@ const ThemeContext = createContext({})
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem('gymx-theme')
+    // Default to dark since this app is dark-first
     if (stored) return stored === 'dark'
-    return window.matchMedia('(prefers-color-scheme: dark)').matches
+    return true
   })
 
   useEffect(() => {

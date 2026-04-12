@@ -10,10 +10,14 @@ import CategoriesPage from './pages/CategoriesPage'
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth()
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
-      <div className="flex flex-col items-center gap-3">
-        <span className="font-display text-4xl text-brand-500 tracking-widest">GYM-X</span>
-        <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #050a05 0%, #0a140a 50%, #060b08 100%)' }}>
+      <div className="flex flex-col items-center gap-4">
+        <div className="flex items-baseline gap-1">
+          <span className="font-display text-5xl tracking-[0.2em]" style={{ color: '#4ade80', textShadow: '0 0 30px rgba(74,222,128,0.5)' }}>GYM</span>
+          <span className="font-display text-5xl tracking-[0.2em]" style={{ color: '#fbbf24', textShadow: '0 0 30px rgba(251,191,36,0.5)' }}>-X</span>
+        </div>
+        <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: 'rgba(74,222,128,0.2)', borderTopColor: '#4ade80' }} />
       </div>
     </div>
   )

@@ -1,25 +1,20 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { useTheme } from '../contexts/ThemeContext'
-import { SunIcon, MoonIcon } from '@heroicons/react/24/outline'
 
 export default function AuthPage() {
   const [mode, setMode] = useState('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState('')
+  const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState('')
   const { signIn, signUp } = useAuth()
-  const { dark, toggle } = useTheme()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
-    setSuccess('')
-    setLoading(true)
+    setError(''); setSuccess(''); setLoading(true)
     try {
       if (mode === 'signin') {
         const { error } = await signIn(email, password)
@@ -39,38 +34,34 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-brand-600/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full opacity-5"
-          style={{ backgroundImage: 'repeating-linear-gradient(0deg, #f97316 0px, #f97316 1px, transparent 1px, transparent 60px), repeating-linear-gradient(90deg, #f97316 0px, #f97316 1px, transparent 1px, transparent 60px)' }}
-        />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #050a05 0%, #0a140a 50%, #060b08 100%)' }}>
+      {/* Background orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(22,163,74,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.06) 0%, transparent 70%)', filter: 'blur(40px)' }} />
 
-      <button
-        onClick={toggle}
-        className="absolute top-4 right-4 p-2 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-all"
-      >
-        {dark ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
-      </button>
-
-      <div className="w-full max-w-md animate-slide-up">
-        <div className="text-center mb-8">
-          <h1 className="font-display text-7xl tracking-[0.2em] text-brand-500 mb-2">GYM-X</h1>
-          <p className="text-zinc-400 text-sm">Track. Progress. Dominate.</p>
+      <div className="w-full max-w-md animate-slide-up relative z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <div className="flex items-baseline justify-center gap-1 mb-2">
+            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: '#4ade80', textShadow: '0 0 40px rgba(74,222,128,0.5)' }}>GYM</span>
+            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: '#fbbf24', textShadow: '0 0 40px rgba(251,191,36,0.5)' }}>-X</span>
+          </div>
+          <p style={{ color: '#4b5563', letterSpacing: '0.3em', fontSize: '0.7rem' }}>TRACK · PROGRESS · DOMINATE</p>
         </div>
 
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
-          <div className="flex rounded-xl bg-zinc-800 p-1 mb-6">
+        {/* Card */}
+        <div className="glass-card p-8">
+          {/* Tab toggle */}
+          <div className="flex rounded-xl p-1 mb-6" style={{ background: 'rgba(0,0,0,0.3)' }}>
             {['signin', 'signup'].map(m => (
               <button
                 key={m}
                 onClick={() => { setMode(m); setError(''); setSuccess('') }}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  mode === m ? 'bg-brand-500 text-white shadow' : 'text-zinc-400 hover:text-zinc-200'
-                }`}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all"
+                style={mode === m
+                  ? { background: 'linear-gradient(135deg, #16a34a, #15803d)', color: 'white', boxShadow: '0 0 16px rgba(22,163,74,0.3)' }
+                  : { color: '#6b7280' }
+                }
               >
                 {m === 'signin' ? 'Sign In' : 'Sign Up'}
               </button>
@@ -79,45 +70,26 @@ export default function AuthPage() {
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="label text-zinc-400">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                required
-                className="input bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500"
-              />
+              <label className="label">Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required className="input" />
             </div>
             <div>
-              <label className="label text-zinc-400">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                minLength={6}
-                className="input bg-zinc-800 border-zinc-700 text-zinc-100 placeholder-zinc-500"
-              />
+              <label className="label">Password</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required minLength={6} className="input" />
             </div>
 
             {error && (
-              <div className="bg-red-950 border border-red-800 text-red-400 text-sm rounded-lg px-4 py-3">
+              <div className="text-sm rounded-xl px-4 py-3" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171' }}>
                 {error}
               </div>
             )}
             {success && (
-              <div className="bg-green-950 border border-green-800 text-green-400 text-sm rounded-lg px-4 py-3">
+              <div className="text-sm rounded-xl px-4 py-3" style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.3)', color: '#4ade80' }}>
                 {success}
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full mt-2 flex items-center justify-center gap-2 disabled:opacity-60"
-            >
+            <button type="submit" disabled={loading} className="btn-primary w-full mt-2 flex items-center justify-center gap-2 disabled:opacity-60">
               {loading && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
               {mode === 'signin' ? 'Sign In' : 'Create Account'}
             </button>

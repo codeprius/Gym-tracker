@@ -24,12 +24,16 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex">
+    <div className="min-h-screen flex" style={{ background: 'linear-gradient(135deg, #050a05 0%, #0a140a 50%, #060b08 100%)' }}>
       {/* Sidebar */}
-      <aside className="w-64 shrink-0 hidden md:flex flex-col bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 p-5">
-        <div className="mb-8">
-          <span className="font-display text-3xl tracking-widest text-brand-500">GYM-X</span>
-          <p className="text-xs text-zinc-400 mt-1 truncate">{user?.email}</p>
+      <aside className="w-64 shrink-0 hidden md:flex flex-col sidebar p-5">
+        {/* Logo */}
+        <div className="mb-8 px-1">
+          <div className="flex items-baseline gap-1">
+            <span className="font-display text-3xl tracking-widest" style={{ color: '#4ade80', textShadow: '0 0 20px rgba(74,222,128,0.4)' }}>GYM</span>
+            <span className="font-display text-3xl tracking-widest" style={{ color: '#fbbf24', textShadow: '0 0 20px rgba(251,191,36,0.4)' }}>-X</span>
+          </div>
+          <p className="text-xs mt-1 truncate" style={{ color: '#4b5563' }}>{user?.email}</p>
         </div>
 
         <nav className="flex-1 flex flex-col gap-1">
@@ -39,11 +43,7 @@ export default function Layout() {
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-brand-500 text-white shadow-sm'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
-                }`
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'nav-active' : 'nav-inactive'}`
               }
             >
               <Icon className="w-5 h-5 shrink-0" />
@@ -52,17 +52,20 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="flex flex-col gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+        <div className="flex flex-col gap-1 pt-4" style={{ borderTop: '1px solid rgba(34,197,94,0.1)' }}>
           <button
             onClick={toggle}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium nav-inactive transition-all"
           >
             {dark ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
             {dark ? 'Light Mode' : 'Dark Mode'}
           </button>
           <button
             onClick={handleSignOut}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 transition-all"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+            style={{ color: '#6b7280' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#f87171'; e.currentTarget.style.background = 'rgba(239,68,68,0.08)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.background = 'transparent' }}
           >
             <ArrowRightOnRectangleIcon className="w-5 h-5" />
             Sign Out
@@ -73,28 +76,29 @@ export default function Layout() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen">
         {/* Mobile header */}
-        <header className="md:hidden bg-white dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
-          <span className="font-display text-2xl tracking-widest text-brand-500">GYM-X</span>
-          <button onClick={toggle} className="p-2 rounded-lg text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+        <header className="md:hidden flex items-center justify-between px-4 py-3" style={{ background: 'rgba(5,10,6,0.95)', borderBottom: '1px solid rgba(34,197,94,0.12)' }}>
+          <div className="flex items-baseline gap-0.5">
+            <span className="font-display text-2xl tracking-widest" style={{ color: '#4ade80' }}>GYM</span>
+            <span className="font-display text-2xl tracking-widest" style={{ color: '#fbbf24' }}>-X</span>
+          </div>
+          <button onClick={toggle} className="p-2 rounded-lg" style={{ color: '#4ade80' }}>
             {dark ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
           </button>
         </header>
 
-        <main className="flex-1 p-4 md:p-8 max-w-5xl w-full mx-auto animate-fade-in">
+        <main className="flex-1 p-4 md:p-8 max-w-5xl w-full mx-auto animate-fade-in relative z-10">
           <Outlet />
         </main>
 
         {/* Mobile bottom nav */}
-        <nav className="md:hidden bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-around px-2 py-2">
+        <nav className="md:hidden flex items-center justify-around px-2 py-2" style={{ background: 'rgba(5,10,6,0.95)', borderTop: '1px solid rgba(34,197,94,0.12)' }}>
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
-                  isActive ? 'text-brand-500' : 'text-zinc-500 dark:text-zinc-400'
-                }`
+                `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${isActive ? 'text-green-400' : 'text-zinc-500'}`
               }
             >
               <Icon className="w-5 h-5" />

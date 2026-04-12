@@ -2,10 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { format, parseISO, subMonths } from 'date-fns'
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, Legend
-} from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts'
 
 export default function ProgressPage() {
   const { user } = useAuth()
@@ -24,11 +21,8 @@ export default function ProgressPage() {
     setLoading(true)
     const threeMonthsAgo = format(subMonths(new Date(), 3), 'yyyy-MM-dd')
     const { data } = await supabase
-      .from('workouts')
-      .select('date, workout_exercises(exercise_name, sets(reps, weight_kg))')
-      .eq('user_id', user.id)
-      .gte('date', threeMonthsAgo)
-      .order('date')
+      .from('workouts').select('date, workout_exercises(exercise_name, sets(reps, weight_kg))')
+      .eq('user_id', user.id).gte('date', threeMonthsAgo).order('date')
     if (data) {
       setAllWorkouts(data)
       const names = [...new Set(data.flatMap(w => w.workout_exercises?.map(we => we.exercise_name) || []))]
@@ -49,110 +43,92 @@ export default function ProgressPage() {
       if (maxWeight > 0) wData.push({ date: label, weight: maxWeight })
       if (volume > 0) vData.push({ date: label, volume: Math.round(volume) })
     }
-    setWeightData(wData)
-    setVolumeData(vData)
+    setWeightData(wData); setVolumeData(vData)
   }
 
   const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload?.length) {
-      return (
-        <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 text-sm shadow-xl">
-          <p className="text-zinc-400 text-xs mb-1">{label}</p>
-          <p className="text-brand-400 font-bold">{payload[0].value}{tab === 'weight' ? 'kg' : 'kg vol'}</p>
-        </div>
-      )
-    }
+    if (active && payload?.length) return (
+      <div className="rounded-xl px-3 py-2 text-sm" style={{ background: 'rgba(8,20,10,0.95)', border: '1px solid rgba(34,197,94,0.3)', boxShadow: '0 0 20px rgba(22,163,74,0.2)' }}>
+        <p className="text-xs mb-1" style={{ color: '#4b5563' }}>{label}</p>
+        <p className="font-bold" style={{ color: tab === 'weight' ? '#4ade80' : '#fbbf24' }}>
+          {payload[0].value}{tab === 'weight' ? 'kg' : 'kg vol'}
+        </p>
+      </div>
+    )
     return null
   }
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
-      <div className="w-8 h-8 border-4 border-brand-500 border-t-transparent rounded-full animate-spin" />
+      <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'rgba(74,222,128,0.3)', borderTopColor: '#4ade80' }} />
     </div>
   )
 
   return (
     <div className="space-y-6 animate-slide-up">
       <div>
-        <h1 className="font-display text-4xl tracking-wider text-zinc-900 dark:text-zinc-100">PROGRESS</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm">Last 3 months</p>
+        <h1 className="font-display text-5xl tracking-wider" style={{ color: '#e2e8f0' }}>PROGRESS</h1>
+        <p className="text-sm mt-1" style={{ color: '#4b5563' }}>Last 3 months</p>
       </div>
 
       {exerciseNames.length === 0 ? (
         <div className="card p-12 text-center">
-          <div className="text-4xl mb-3">📈</div>
-          <p className="text-zinc-500 dark:text-zinc-400 font-medium">No data yet.</p>
-          <p className="text-zinc-400 text-sm mt-1">Log some workouts to see your progress charts.</p>
+          <div className="text-5xl mb-4">📈</div>
+          <p className="font-semibold" style={{ color: '#6b7280' }}>No data yet.</p>
+          <p className="text-sm mt-1" style={{ color: '#4b5563' }}>Log workouts to see your progress.</p>
         </div>
       ) : (
         <>
-          {/* Exercise selector */}
           <div className="card p-4">
             <label className="label">Exercise</label>
-            <select
-              value={selectedExercise}
-              onChange={e => setSelectedExercise(e.target.value)}
-              className="input"
-            >
-              {exerciseNames.map(name => (
-                <option key={name} value={name}>{name}</option>
-              ))}
+            <select value={selectedExercise} onChange={e => setSelectedExercise(e.target.value)} className="input">
+              {exerciseNames.map(name => <option key={name} value={name}>{name}</option>)}
             </select>
           </div>
 
           {/* Tab toggle */}
-          <div className="flex rounded-xl bg-zinc-100 dark:bg-zinc-800 p-1">
-            {[
-              { id: 'weight', label: 'Max Weight' },
-              { id: 'volume', label: 'Total Volume' },
-            ].map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
-                  tab === t.id
-                    ? 'bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow'
-                    : 'text-zinc-500 dark:text-zinc-400'
-                }`}
+          <div className="flex rounded-xl p-1" style={{ background: 'rgba(0,0,0,0.4)' }}>
+            {[{ id: 'weight', label: 'Max Weight' }, { id: 'volume', label: 'Total Volume' }].map(t => (
+              <button key={t.id} onClick={() => setTab(t.id)}
+                className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all"
+                style={tab === t.id
+                  ? { background: tab === 'weight' ? 'linear-gradient(135deg,#16a34a,#15803d)' : 'linear-gradient(135deg,#d97706,#b45309)', color: 'white', boxShadow: `0 0 16px ${tab === 'weight' ? 'rgba(22,163,74,0.3)' : 'rgba(217,119,6,0.3)'}` }
+                  : { color: '#6b7280' }
+                }
               >
                 {t.label}
               </button>
             ))}
           </div>
 
-          {/* Chart */}
           <div className="card p-5">
-            <h2 className="font-semibold text-zinc-700 dark:text-zinc-300 mb-4">
+            <h2 className="text-sm font-semibold mb-4" style={{ color: '#6b7280' }}>
               {selectedExercise} — {tab === 'weight' ? 'Max Weight (kg)' : 'Total Volume (kg)'}
             </h2>
             {(tab === 'weight' ? weightData : volumeData).length < 2 ? (
-              <div className="h-48 flex items-center justify-center text-zinc-400 text-sm">
-                Not enough data yet. Log this exercise more to see trends.
+              <div className="h-48 flex items-center justify-center text-sm" style={{ color: '#4b5563' }}>
+                Log this exercise more to see trends.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={220}>
                 {tab === 'weight' ? (
                   <LineChart data={weightData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#71717a' }} />
-                    <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,197,94,0.08)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Line
-                      type="monotone"
-                      dataKey="weight"
-                      stroke="#f97316"
-                      strokeWidth={2.5}
-                      dot={{ fill: '#f97316', strokeWidth: 0, r: 4 }}
-                      activeDot={{ r: 6, fill: '#f97316' }}
+                    <Line type="monotone" dataKey="weight" stroke="#4ade80" strokeWidth={2.5}
+                      dot={{ fill: '#4ade80', strokeWidth: 0, r: 4 }}
+                      activeDot={{ r: 6, fill: '#4ade80', boxShadow: '0 0 12px rgba(74,222,128,0.6)' }}
                     />
                   </LineChart>
                 ) : (
                   <BarChart data={volumeData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#71717a' }} />
-                    <YAxis tick={{ fontSize: 11, fill: '#71717a' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(34,197,94,0.08)" />
+                    <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 11, fill: '#4b5563' }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="volume" fill="#f97316" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="volume" fill="#f59e0b" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 )}
               </ResponsiveContainer>
