@@ -12,12 +12,9 @@ function PrivateRoute({ children }) {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--c-gradient)' }}>
       <div className="flex flex-col items-center gap-4">
-        <div className="flex items-baseline gap-1">
-          <span className="font-display text-5xl tracking-[0.2em]" style={{ color: 'var(--c-primary)', textShadow: '0 0 30px rgba(74,222,128,0.5)' }}>GYM</span>
-          <span className="font-display text-5xl tracking-[0.2em]" style={{ color: 'var(--c-accent)', textShadow: '0 0 30px rgba(251,191,36,0.5)' }}>-X</span>
-        </div>
-        <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin"
-          style={{ borderColor: 'rgba(74,222,128,0.2)', borderTopColor: 'var(--c-primary)' }} />
+        <img src="/icons/logo.png" alt="GYM-X" className="w-20 h-20 rounded-3xl object-cover animate-pulse" />
+        <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin"
+          style={{ borderColor: 'rgba(74,222,128,0.3)', borderTopColor: 'var(--c-primary)' }} />
       </div>
     </div>
   )

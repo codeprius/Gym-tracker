@@ -2,31 +2,24 @@ import { createContext, useContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext({})
 
-// Theme definitions
 export const THEMES = {
   'green-gold': {
     id: 'green-gold',
     label: 'Green & Gold',
     primary: '#4ade80',
     accent: '#fbbf24',
-    bg: '#050a05',
-    dot: 'bg-green-400',
   },
   'orange-dark': {
     id: 'orange-dark',
     label: 'Iron & Ember',
     primary: '#f97316',
-    accent: '#f97316',
-    bg: '#09090b',
-    dot: 'bg-orange-500',
+    accent: '#fb923c',
   },
   'dark': {
     id: 'dark',
     label: 'Midnight',
     primary: '#a78bfa',
-    accent: '#a78bfa',
-    bg: '#030712',
-    dot: 'bg-violet-400',
+    accent: '#c4b5fd',
   },
 }
 
@@ -39,9 +32,7 @@ const THEME_VARS = {
     '--c-accent-dim': 'rgba(251,191,36,0.15)',
     '--c-accent-glow': 'rgba(251,191,36,0.3)',
     '--c-bg': '#050a05',
-    '--c-bg-mid': '#0a140a',
-    '--c-bg-end': '#060b08',
-    '--c-sidebar-bg': 'rgba(5,10,6,0.95)',
+    '--c-sidebar-bg': 'rgba(5,10,6,0.98)',
     '--c-border': 'rgba(34,197,94,0.12)',
     '--c-border-hover': 'rgba(34,197,94,0.3)',
     '--c-card-bg': 'rgba(10,22,12,0.85)',
@@ -65,8 +56,6 @@ const THEME_VARS = {
     '--c-accent-dim': 'rgba(251,146,60,0.15)',
     '--c-accent-glow': 'rgba(251,146,60,0.3)',
     '--c-bg': '#09090b',
-    '--c-bg-mid': '#111113',
-    '--c-bg-end': '#0c0c0e',
     '--c-sidebar-bg': 'rgba(9,9,11,0.98)',
     '--c-border': 'rgba(249,115,22,0.12)',
     '--c-border-hover': 'rgba(249,115,22,0.35)',
@@ -91,8 +80,6 @@ const THEME_VARS = {
     '--c-accent-dim': 'rgba(196,181,253,0.12)',
     '--c-accent-glow': 'rgba(196,181,253,0.25)',
     '--c-bg': '#030712',
-    '--c-bg-mid': '#070b18',
-    '--c-bg-end': '#050914',
     '--c-sidebar-bg': 'rgba(3,7,18,0.98)',
     '--c-border': 'rgba(167,139,250,0.1)',
     '--c-border-hover': 'rgba(167,139,250,0.3)',
@@ -113,29 +100,23 @@ const THEME_VARS = {
 
 function applyThemeVars(themeId) {
   const vars = THEME_VARS[themeId] || THEME_VARS['green-gold']
-  const root = document.documentElement
-  Object.entries(vars).forEach(([key, val]) => root.style.setProperty(key, val))
+  Object.entries(vars).forEach(([k, v]) => document.documentElement.style.setProperty(k, v))
+  // Always stay dark
+  document.documentElement.classList.add('dark')
 }
 
 export function ThemeProvider({ children }) {
-  const [dark, setDark] = useState(true)
   const [themeId, setThemeId] = useState(() => {
     try { return localStorage.getItem('gymx-theme-id') || 'green-gold' } catch { return 'green-gold' }
   })
 
   useEffect(() => {
-    document.documentElement.classList.add('dark')
     applyThemeVars(themeId)
     localStorage.setItem('gymx-theme-id', themeId)
   }, [themeId])
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', dark)
-    localStorage.setItem('gymx-dark', dark ? '1' : '0')
-  }, [dark])
-
   return (
-    <ThemeContext.Provider value={{ dark, toggle: () => setDark(d => !d), themeId, setThemeId, themes: THEMES }}>
+    <ThemeContext.Provider value={{ themeId, setThemeId, themes: THEMES }}>
       {children}
     </ThemeContext.Provider>
   )

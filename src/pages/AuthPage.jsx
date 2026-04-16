@@ -41,12 +41,20 @@ export default function AuthPage() {
 
       <div className="w-full max-w-md animate-slide-up relative z-10">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="flex items-baseline justify-center gap-1 mb-2">
-            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: 'var(--c-primary)', textShadow: '0 0 40px rgba(74,222,128,0.5)' }}>GYM</span>
-            <span className="font-display text-8xl tracking-[0.15em]" style={{ color: 'var(--c-accent)', textShadow: '0 0 40px rgba(251,191,36,0.5)' }}>-X</span>
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <img
+              src="/icons/logo.png"
+              alt="GYM-X"
+              className="w-28 h-28 rounded-3xl object-cover"
+              style={{ boxShadow: '0 0 48px var(--c-primary-glow), 0 0 80px rgba(0,0,0,0.5)' }}
+            />
           </div>
-          <p style={{ color: '#4b5563', letterSpacing: '0.3em', fontSize: '0.7rem' }}>TRACK · PROGRESS · DOMINATE</p>
+          <div className="flex items-baseline justify-center gap-0.5 mb-1">
+            <span className="font-display text-4xl tracking-widest" style={{ color: 'var(--c-primary)', textShadow: '0 0 20px var(--c-primary-glow)' }}>GYM</span>
+            <span className="font-display text-4xl tracking-widest" style={{ color: 'var(--c-accent)', textShadow: '0 0 20px var(--c-accent-glow)' }}>-X</span>
+          </div>
+          <p style={{ color: '#374151', letterSpacing: '0.3em', fontSize: '0.65rem' }}>TRACK · PROGRESS · DOMINATE</p>
         </div>
 
         {/* Card */}
